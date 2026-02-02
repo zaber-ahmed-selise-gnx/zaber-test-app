@@ -43,9 +43,7 @@ export const useGetInventories = (params: InventoryQueryParams) => {
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
-    onError: (error) => {
-      throw error;
-    },
+    retry: false,
   });
 };
 

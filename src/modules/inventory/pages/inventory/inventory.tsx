@@ -1,14 +1,15 @@
+import { Table } from '@tanstack/react-table';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Table } from '@tanstack/react-table';
+import AdvanceDataTable from '../../component/advance-data-table/advance-data-table';
+import { AdvanceExpandRowContent } from '../../component/advance-expand-row-content/advance-expand-row-content';
+import { AdvancedTableColumnsToolbar } from '../../component/advance-table-columns-toolbar/advance-table-columns-toolbar';
 import { createAdvanceTableColumns } from '../../component/advance-table-columns/advance-table-columns';
+import { AdvanceTableFilterToolbar } from '../../component/advance-table-filter-toolbar/advance-table-filter-toolbar';
 import { useGetInventories } from '../../hooks/use-inventory';
 import { InventoryItem } from '../../types/inventory.types';
-import { AdvancedTableColumnsToolbar } from '../../component/advance-table-columns-toolbar/advance-table-columns-toolbar';
-import { AdvanceExpandRowContent } from '../../component/advance-expand-row-content/advance-expand-row-content';
-import { AdvanceTableFilterToolbar } from '../../component/advance-table-filter-toolbar/advance-table-filter-toolbar';
-import AdvanceDataTable from '../../component/advance-data-table/advance-data-table';
+import InventoryError from '../inventory-error/inventory-error';
 
 interface PaginationState {
   pageIndex: number;
@@ -30,12 +31,18 @@ export const InventoryPage = () => {
   const {
     data: inventoryData,
     isLoading: isInventoryLoading,
+    isRefetching: isRefetchingInventory,
     error: inventoryError,
+    refetch,
   } = useGetInventories({
     pageNo: paginationState.pageIndex + 1,
     pageSize: paginationState.pageSize,
   });
   const data = inventoryData as { getInventoryItems: any };
+
+  const handleRetry = () => {
+    refetch();
+  };
 
   useEffect(() => {
     if (data?.getInventoryItems?.items) {
@@ -101,6 +108,18 @@ export const InventoryPage = () => {
     <AdvanceTableFilterToolbar table={table} />
   );
 
+  // Show error state with retry option
+  if (isInventoryLoading || inventoryError) {
+    return (
+      <InventoryError
+        inventoryError={inventoryError}
+        isInventoryLoading={isRefetchingInventory}
+        handleRetry={handleRetry}
+        navigate={navigate}
+      />
+    );
+  }
+
   return (
     <div className="flex w-full flex-col">
       <AdvanceDataTable
@@ -108,7 +127,7 @@ export const InventoryPage = () => {
         columns={columns}
         onRowClick={handleInventoryDetails}
         isLoading={isInventoryLoading}
-        error={inventoryError instanceof Error ? inventoryError : null}
+        error={null}
         columnsToolbar={renderColumnsToolbar}
         filterToolbar={renderFilterToolbar}
         expandRowContent={renderExpandRowContent}
