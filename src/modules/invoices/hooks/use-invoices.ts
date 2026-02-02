@@ -1,13 +1,13 @@
-import { useGlobalQuery, useGlobalMutation } from '@/state/query-client/hooks';
+import { useErrorHandler } from '@/hooks/use-error-handler';
+import { useToast } from '@/hooks/use-toast';
+import { useGlobalMutation, useGlobalQuery } from '@/state/query-client/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { useToast } from '@/hooks/use-toast';
-import { useErrorHandler } from '@/hooks/use-error-handler';
 import {
-  getInvoiceItems,
   addInvoiceItem,
-  updateInvoiceItem,
   deleteInvoiceItem,
+  getInvoiceItems,
+  updateInvoiceItem,
 } from '../services/invoices.service';
 import {
   AddInvoiceItemParams,
@@ -76,9 +76,6 @@ const fetchInvoiceItems = async ({
 };
 
 export const useGetInvoiceItems = (params: InvoiceItemQueryParams) => {
-  const { toast } = useToast();
-  const { t } = useTranslation();
-
   return useGlobalQuery<
     InvoiceItemsData,
     Error,
@@ -87,33 +84,12 @@ export const useGetInvoiceItems = (params: InvoiceItemQueryParams) => {
   >({
     queryKey: ['invoice-items', params],
     queryFn: async ({ queryKey }) => {
-      try {
-        return await fetchInvoiceItems({ queryKey });
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'COULD_NOT_RETRIEVE_INVOICE_ITEM';
-        console.error('Error in useGetInvoiceItems queryFn:', error);
-        toast({
-          variant: 'destructive',
-          title: t('UNABLE_LOAD_INVOICE_ITEMS'),
-          description: t(errorMessage),
-        });
-        throw error;
-      }
+      return await fetchInvoiceItems({ queryKey });
     },
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
-    retry: 2,
-    retryDelay: (attempt) => Math.min(attempt * 1000, 3000),
-    onError: (error: Error) => {
-      console.error('Error in useGetInvoiceItems:', error);
-      toast({
-        variant: 'destructive',
-        title: t('UNABLE_LOAD_INVOICE_ITEMS'),
-        description: t('COULD_NOT_RETRIEVE_INVOICE_ITEM'),
-      });
-    },
+    retry: false,
   });
 };
 

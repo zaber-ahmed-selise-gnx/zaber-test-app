@@ -8,6 +8,7 @@ export { UIOtpInput } from './otp-input/otp-input';
 export { CustomCheckbox } from './custom-checkbox/custom-checkbox';
 export { ConfirmationModal } from './confirmation-modal/confirmation-modal';
 export { ErrorAlert } from './error-alert/error-alert';
+export { DataError } from './data-error/data-error';
 export { ProfileMenu } from './profile-menu/profile-menu';
 export { CustomAvatar } from './custom-avatar/custom-avatar';
 export { Divider } from './divider/divider';

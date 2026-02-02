@@ -9,7 +9,7 @@ import { createAdvanceTableColumns } from '../../component/advance-table-columns
 import { AdvanceTableFilterToolbar } from '../../component/advance-table-filter-toolbar/advance-table-filter-toolbar';
 import { useGetInventories } from '../../hooks/use-inventory';
 import { InventoryItem } from '../../types/inventory.types';
-import InventoryError from '../inventory-error/inventory-error';
+import { DataError } from '@/components/core/data-error/data-error';
 
 interface PaginationState {
   pageIndex: number;
@@ -111,11 +111,17 @@ export const InventoryPage = () => {
   // Show error state with retry option
   if (isInventoryLoading || inventoryError) {
     return (
-      <InventoryError
-        inventoryError={inventoryError}
-        isInventoryLoading={isRefetchingInventory}
-        handleRetry={handleRetry}
-        navigate={navigate}
+      <DataError
+        error={inventoryError}
+        isLoading={isRefetchingInventory}
+        onRetry={handleRetry}
+        onGoBack={() => navigate(-1)}
+        title={t('ERROR_LOADING_INVENTORY') || 'Unable to Load Inventory'}
+        possibleCauses={[
+          'The inventory schema may not be configured on the backend',
+          'Network connectivity issues',
+          'Server maintenance or temporary outage',
+        ]}
       />
     );
   }

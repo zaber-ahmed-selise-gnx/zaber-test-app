@@ -8,6 +8,7 @@ import { createInvoiceTableColumns } from '../../components/invoices-table-colum
 import { useGetInvoiceItems } from '../../hooks/use-invoices';
 import InvoicesHeaderToolbar from '../../components/invoices-header-toolbar/invoices-header-toolbar';
 import { InvoicesOverviewTable } from '../../components/invoices-overview-table/invoices-overview-table';
+import { DataError } from '@/components/core/data-error/data-error';
 
 interface PaginationState {
   pageIndex: number;
@@ -34,6 +35,8 @@ export function InvoicesPage() {
     data: invoiceDataItems,
     isLoading,
     error,
+    isRefetching,
+    refetch,
   } = useGetInvoiceItems({
     pageNo: paginationState.pageIndex + 1,
     pageSize: paginationState.pageSize,
@@ -60,11 +63,24 @@ export function InvoicesPage() {
     navigate(`/invoices/${data.ItemId}`);
   };
 
-  if (error) {
+  const handleRetry = () => {
+    refetch();
+  };
+
+  if (isLoading || error) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-error">Error loading invoices. Please try again later.</p>
-      </div>
+      <DataError
+        error={error}
+        isLoading={isRefetching}
+        onRetry={handleRetry}
+        onGoBack={() => navigate(-1)}
+        title={t('ERROR_LOADING_INVOICES') || 'Unable to Load Invoices'}
+        possibleCauses={[
+          'The invoice schema may not be configured on the backend',
+          'Network connectivity issues',
+          'Server maintenance or temporary outage',
+        ]}
+      />
     );
   }
 
